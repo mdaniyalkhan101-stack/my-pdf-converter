@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My PDF Converter – Document to PDF</title>
+  <meta name="description" content="Convert Word, text, HTML, and image files to PDF instantly in your browser. No uploads, no server, 100% private." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Application Stylesheet -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ========================================================
+       HEADER
+       ======================================================== -->
+  <header class="site-header" role="banner">
+    <div class="header-content">
+      <p class="logo">My <span>PDF</span> Converter</p>
+      <p class="tagline">Convert Word, Text, HTML &amp; Images to PDF — entirely in your browser, for free.</p>
+    </div>
+  </header>
+
+  <!-- ========================================================
+       MAIN CONTENT
+       ======================================================== -->
+  <main>
+
+    <!-- Upload Card -->
+    <div class="card">
+
+      <!-- Drop Zone -->
+      <div
+        id="drop-zone"
+        class="drop-zone"
+        role="button"
+        tabindex="0"
+        aria-label="Upload area – click or drag and drop a file here"
+      >
+        <div class="drop-zone-icon" aria-hidden="true">
+          <!-- Upload cloud icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/>
+            <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+          </svg>
+        </div>
+        <h2>Drag &amp; Drop your file here</h2>
+        <p>or click the button below to browse from your device</p>
+
+        <!-- Hidden file input -->
+        <input
+          type="file"
+          id="file-input"
+          accept=".docx,.txt,.html,.png,.jpg,.jpeg"
+          aria-label="File input"
+        />
+        <button type="button" id="browse-btn" class="btn btn-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          Browse File
+        </button>
+
+        <!-- Supported formats -->
+        <div class="format-badges" aria-label="Supported formats">
+          <span class="format-badge">.docx</span>
+          <span class="format-badge">.txt</span>
+          <span class="format-badge">.html</span>
+          <span class="format-badge">.png</span>
+          <span class="format-badge">.jpg</span>
+          <span class="format-badge">.jpeg</span>
+        </div>
+      </div>
+
+      <!-- File Preview (hidden until a file is selected) -->
+      <div id="file-preview">
+
+        <!-- File info row -->
+        <div class="file-info-card" role="region" aria-label="Selected file info">
+          <div id="file-type-icon" class="file-type-icon" aria-hidden="true">—</div>
+          <div class="file-meta">
+            <div id="file-name" class="file-name">filename.docx</div>
+            <div id="file-size" class="file-size">0 KB</div>
+          </div>
+          <button type="button" id="remove-file-btn" class="btn-remove-file" aria-label="Remove selected file">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Image thumbnail (shown only for image uploads) -->
+        <div id="image-preview-container" aria-label="Image preview">
+          <img id="image-preview" src="" alt="Preview of the uploaded image" />
+        </div>
+
+        <!-- Action buttons -->
+        <div class="action-buttons">
+          <button type="button" id="convert-btn" class="btn btn-primary" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+            Convert to PDF
+          </button>
+        </div>
+
+      </div><!-- /#file-preview -->
+
+      <!-- Progress Bar (hidden until conversion starts) -->
+      <div id="progress-container" role="status" aria-live="polite">
+        <div class="progress-label">
+          <span id="progress-text">Converting…</span>
+        </div>
+        <div class="progress-track" aria-hidden="true">
+          <div id="progress-bar" class="progress-bar"></div>
+        </div>
+      </div>
+
+      <!-- Status Message (success / error) -->
+      <div id="status-message" role="alert" aria-live="assertive"></div>
+
+    </div><!-- /.card (upload) -->
+
+    <!-- Download Card (hidden until PDF is ready) -->
+    <div class="card" id="download-section" aria-live="polite">
+      <div class="download-illustration" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <h3>Your PDF is Ready!</h3>
+      <p>Click the button below to save the PDF to your device.</p>
+      <div class="action-buttons" style="justify-content:center; margin-bottom:0.75rem;">
+        <button type="button" id="download-btn" class="btn btn-success" data-filename="converted.pdf">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-15"/>
+            <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Download PDF
+        </button>
+        <button type="button" id="convert-another-btn" class="btn btn-secondary">
+          Convert Another File
+        </button>
+      </div>
+    </div>
+
+    <!-- How It Works Card -->
+    <div class="card">
+      <h2 class="section-title">How It Works</h2>
+      <div class="steps-grid">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3>Upload</h3>
+          <p>Drag &amp; drop or browse to select your document or image file.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3>Convert</h3>
+          <p>Click "Convert to PDF" and the magic happens right in your browser.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3>Download</h3>
+          <p>Save the generated PDF to your device with one click.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">4</div>
+          <h3>Private</h3>
+          <p>No file ever leaves your device — 100% client-side processing.</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ========================================================
+       FOOTER
+       ======================================================== -->
+  <footer class="site-footer" role="contentinfo">
+    <p>
+      &copy; 2025 My PDF Converter &mdash; Built with
+      <a href="https://parall.ax/products/jspdf" target="_blank" rel="noopener noreferrer">jsPDF</a>,
+      <a href="https://github.com/mwilliamson/mammoth.js" target="_blank" rel="noopener noreferrer">mammoth.js</a> &amp;
+      <a href="https://html2canvas.hertzen.com/" target="_blank" rel="noopener noreferrer">html2canvas</a>.
+      Open source under the <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">MIT License</a>.
+    </p>
+  </footer>
+
+  <!-- ========================================================
+       THIRD-PARTY LIBRARIES (CDN)
+       ======================================================== -->
+  <!-- jsPDF – PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+          integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfYHqkZDWPuA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- mammoth.js – .docx → HTML -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"
+          integrity="sha512-RFGOHCkPdoH5DMZnjNjAMuWmCKXDQfPaSFlS0yoIw30lKPVHcU5OG7BoqBxknHxcRqiGLnJ4+MkRVtAHxkZbw=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- html2canvas – DOM → canvas rendering -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+          integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <!-- Application Logic -->
+  <script src="js/app.js"></script>
+
+</body>
+</html>
