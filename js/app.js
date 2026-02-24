@@ -271,7 +271,7 @@ async function convertDocx(file) {
   const rawHtml = result.value;
 
   setProgress(50, 'Rendering content…');
-  return htmlStringToPdf(rawHtml, file.name);
+  return htmlStringToPdf(rawHtml);
 }
 
 /**
@@ -299,14 +299,14 @@ async function convertTxt(file) {
   const lines = doc.splitTextToSize(text, maxWidth);
   let y = margin + 20;
 
-  for (const line of lines) {
+  for (let i = 0; i < lines.length; i++) {
     if (y + lineHeight > pageHeight - margin) {
       doc.addPage();
       y = margin + 20;
     }
-    doc.text(line, margin, y);
+    doc.text(lines[i], margin, y);
     y += lineHeight;
-    setProgress(50 + Math.round((lines.indexOf(line) / lines.length) * 40), 'Generating PDF…');
+    setProgress(50 + Math.round((i / lines.length) * 40), 'Generating PDF…');
   }
 
   setProgress(95, 'Finalising…');
@@ -323,7 +323,7 @@ async function convertHtml(file) {
   const htmlText = await file.text();
   setProgress(40, 'Rendering HTML…');
 
-  return htmlStringToPdf(htmlText, file.name);
+  return htmlStringToPdf(htmlText);
 }
 
 /**
@@ -379,7 +379,7 @@ async function convertImage(file) {
  * Render an arbitrary HTML string into a PDF using
  * a hidden off-screen container, html2canvas, and jsPDF.
  */
-async function htmlStringToPdf(htmlString, _originalName) {
+async function htmlStringToPdf(htmlString) {
   // Wrap in a styled container so the render looks reasonable
   const wrapper = document.createElement('div');
   wrapper.style.cssText = [
