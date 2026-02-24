@@ -214,6 +214,16 @@ async function convertFile() {
   setProgress(5, 'Starting conversion…');
 
   try {
+    if (typeof window.jspdf === 'undefined') {
+      throw new Error('jsPDF library failed to load. Please check your internet connection and refresh.');
+    }
+    if (ext === '.docx' && typeof mammoth === 'undefined') {
+      throw new Error('mammoth.js library failed to load. Please check your internet connection and refresh.');
+    }
+    if ((ext === '.docx' || ext === '.html') && typeof html2canvas === 'undefined') {
+      throw new Error('html2canvas library failed to load. Please check your internet connection and refresh.');
+    }
+
     let pdfBlob;
 
     if (ext === '.docx') {
