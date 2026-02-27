@@ -496,3 +496,108 @@ downloadBtn.addEventListener('click', () => {
 });
 
 convertAnotherBtn.addEventListener('click', resetUI);
+
+/* ============================================================
+   Voice Commands (Web Speech API)
+   ============================================================ */
+
+const voiceBtn      = document.getElementById('voice-btn');
+const voiceBtnLabel = document.getElementById('voice-btn-label');
+const voiceStatus   = document.getElementById('voice-status');
+
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (!SpeechRecognition) {
+  // Browser doesn't support the API – hide the voice bar gracefully
+  document.getElementById('voice-bar').style.display = 'none';
+} else {
+  const recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = 'en-US';
+
+  let isListening = false;
+
+  function startListening() {
+    isListening = true;
+    voiceBtn.classList.add('listening');
+    voiceBtn.setAttribute('aria-pressed', 'true');
+    voiceBtn.setAttribute('aria-label', 'Stop voice commands');
+    voiceBtnLabel.textContent = 'Listening…';
+    voiceStatus.textContent = 'Listening for a command…';
+    recognition.start();
+  }
+
+  function stopListening() {
+    isListening = false;
+    voiceBtn.classList.remove('listening');
+    voiceBtn.setAttribute('aria-pressed', 'false');
+    voiceBtn.setAttribute('aria-label', 'Activate voice commands');
+    voiceBtnLabel.textContent = 'Voice Commands';
+    try { recognition.stop(); } catch (_) { /* stop() throws if not yet started – safely ignore */ }
+  }
+
+  voiceBtn.addEventListener('click', () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
+  });
+
+  recognition.addEventListener('result', (e) => {
+    const transcript = Array.from(e.results)
+      .map(r => r[0].transcript)
+      .join(' ')
+      .toLowerCase()
+      .trim();
+
+    voiceStatus.textContent = `Heard: "${transcript}"`;
+    handleVoiceCommand(transcript);
+  });
+
+  recognition.addEventListener('end', () => {
+    if (isListening) stopListening();
+  });
+
+  recognition.addEventListener('error', (e) => {
+    stopListening();
+    voiceStatus.textContent = e.error === 'not-allowed'
+      ? 'Microphone access denied. Please allow microphone access in your browser settings.'
+      : `Voice recognition error: ${e.error}`;
+  });
+
+  /**
+   * Map a recognized transcript to an app action.
+   * Supported commands:
+   *   "convert"  → start PDF conversion
+   *   "download" → download the ready PDF
+   *   "reset" / "clear" / "start over" / "new file" → reset the UI
+   *   "browse" / "open" / "choose file" / "select file" → open file picker
+   */
+  function handleVoiceCommand(transcript) {
+    if (/\b(?:convert|start conversion|make pdf|create pdf)\b/.test(transcript)) {
+      if (selectedFile && !convertBtn.disabled) {
+        voiceStatus.textContent = 'Command recognized: Convert – starting conversion…';
+        convertBtn.click();
+      } else if (!selectedFile) {
+        voiceStatus.textContent = 'No file selected. Please upload a file first.';
+      }
+    } else if (/\b(?:download|save|get pdf)\b/.test(transcript)) {
+      if (generatedPdfBlob) {
+        voiceStatus.textContent = 'Command recognized: Download – saving PDF…';
+        downloadBtn.click();
+      } else {
+        voiceStatus.textContent = 'No PDF is ready to download yet.';
+      }
+    } else if (/\b(?:reset|clear|start over|new file|remove file)\b/.test(transcript)) {
+      voiceStatus.textContent = 'Command recognized: Reset – clearing…';
+      resetUI();
+    } else if (/\b(?:browse|open|choose file|select file|upload|pick file)\b/.test(transcript)) {
+      voiceStatus.textContent = 'Command recognized: Browse – opening file picker…';
+      fileInput.click();
+    } else {
+      voiceStatus.textContent = `Command not recognized. Try: "convert", "download", "reset", or "browse".`;
+    }
+  }
+}

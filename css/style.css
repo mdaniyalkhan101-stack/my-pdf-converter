@@ -554,6 +554,62 @@ main {
   animation: spin 0.7s linear infinite;
 }
 
+/* ---------- Voice Commands ---------- */
+.voice-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-bg);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius);
+  flex-wrap: wrap;
+}
+
+.btn-voice {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  border: 1.5px solid var(--color-primary-light);
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition), box-shadow var(--transition), border-color var(--transition);
+  flex-shrink: 0;
+}
+
+.btn-voice:hover {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+}
+
+.btn-voice.listening {
+  background: var(--color-error);
+  color: #fff;
+  border-color: var(--color-error);
+  animation: voice-pulse 1.2s infinite;
+}
+
+@keyframes voice-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.45); }
+  70%  { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.voice-status {
+  font-size: 0.83rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+  flex: 1;
+  min-width: 0;
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 600px) {
   .site-header .logo { font-size: 1.8rem; }
